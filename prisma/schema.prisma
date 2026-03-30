@@ -1,0 +1,51 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  discord_user_id  String      @id
+  user_name        String
+  display_name     String
+  total_points     Int         @default(0)
+  created_at       DateTime    @default(now())
+  updated_at       DateTime    @updatedAt
+  
+  posts            DailyPost[]
+  point_logs       PointLog[]
+  
+  @@map("users")
+}
+
+model DailyPost {
+  id               String      @id @default(uuid())
+  discord_user_id  String
+  post_type        String      // "challenge" | "done" | "pun"
+  content          String
+  comment          String?
+  point_awarded    Int
+  posted_at        DateTime    @default(now())
+
+  user             User        @relation(fields: [discord_user_id], references: [discord_user_id])
+  point_logs       PointLog[]
+  
+  @@map("daily_posts")
+}
+
+model PointLog {
+  id               String      @id @default(uuid())
+  discord_user_id  String
+  reason           String
+  points           Int
+  related_post_id  String?
+  created_at       DateTime    @default(now())
+
+  user             User        @relation(fields: [discord_user_id], references: [discord_user_id])
+  related_post     DailyPost?  @relation(fields: [related_post_id], references: [id])
+  
+  @@map("point_logs")
+}
