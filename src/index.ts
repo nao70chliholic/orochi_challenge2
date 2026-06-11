@@ -29,5 +29,18 @@ client.once(Events.ClientReady, (c) => {
 
 client.on(Events.InteractionCreate, handleInteractionCreate);
 
+client.on(Events.Error, (error) => {
+  console.error('Discord client error:', error);
+});
+
+// 未キャッチの例外やPromiseの拒否でプロセスがクラッシュするのを防ぐ
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('Unhandled Rejection at:', promise, 'reason:', reason);
+});
+
+process.on('uncaughtException', (error) => {
+  console.error('Uncaught Exception:', error);
+});
+
 // Botのログイン
 client.login(token);
